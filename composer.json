@@ -1,6 +1,7 @@
 {
     "name": "newtovaux/gjrouter",
     "description": "A simple PHP router",
+    "license": "MIT",
 
     "autoload": {
         "psr-4": {
