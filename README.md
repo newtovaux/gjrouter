@@ -1,23 +1,21 @@
 # GJRouter
 
-A simple PHP Router incorporating JWT authenticator
+[![Total Downloads](https://img.shields.io/packagist/dt/newtovaux/gjrouter.svg)](https://packagist.org/packages/newtovaux/gjrouter)
+[![Latest Stable Version](https://img.shields.io/packagist/v/newtovaux/gjrouter.svg)](https://packagist.org/packages/newtovaux/gjrouter)
 
-## Development
+A simple PHP Router incorporating JWT authenticator.
 
-Create autoload:
+## Installation
 
-    composer dump-autoload -o
+Install the latest version with
 
-Static Analysis:
+```bash
+$ composer require newtovaux/gjrouter
+```
 
-    ./vendor/bin/psalm --show-info=true
+## Basic Usage
 
-Run tests:
-
-    ./vendor/bin/phpunit tests
-
-## Usage Example
-
+```php
     <?php
 
     require_once('vendor/autoload.php');
@@ -42,15 +40,6 @@ Run tests:
 
     $router->route();
 
-    /**
-    * Undocumented function
-    *
-    * @param string $method
-    * @param string $uri
-    * @param array $headers
-    * @param mixed $jsondata
-    * @return void
-    */
     function route_auth(string $method, string $uri, $headers, $jsondata): void 
     {
         error_log('hello');
@@ -67,3 +56,29 @@ Run tests:
         error_log('default');
         echo 'default';
     }
+```
+
+## Documentation
+
+Coming soon. I promise.
+
+## About
+
+### Requirements
+
+- GJRouter `^1.0` is tested with PHP 7.4 or above.
+
+## Development
+
+Create autoload:
+
+    composer dump-autoload -o
+
+Static Analysis:
+
+    ./vendor/bin/psalm --show-info=true
+
+Run tests:
+
+    ./vendor/bin/phpunit tests
+
