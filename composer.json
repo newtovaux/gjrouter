@@ -2,7 +2,15 @@
     "name": "newtovaux/gjrouter",
     "description": "A simple PHP router",
     "license": "MIT",
-
+    "keywords": ["router", "route", "routes"],
+    "homepage": "https://github.com/newtovaux/gjrouter",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Dan S",
+            "homepage": "https://github.com/newtovaux"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "GJRouter\\": "GJRouter/"
