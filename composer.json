@@ -1,8 +1,8 @@
 {
     "name": "newtovaux/gjrouter",
-    "description": "A simple PHP router",
+    "description": "A simple and lightweight PHP router, with JWT support.",
     "license": "MIT",
-    "keywords": ["router", "route", "routes"],
+    "keywords": ["router", "route", "routes", "jwt"],
     "homepage": "https://github.com/newtovaux/gjrouter",
     "type": "library",
     "authors": [
@@ -22,6 +22,7 @@
         "monolog/monolog": "^2.2"
     },
     "require": {
+        "php": ">=7.4",
         "lindelius/php-jwt": "^0.9.0",
         "psr/log": "^1.1"
     }

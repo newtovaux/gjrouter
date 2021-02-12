@@ -7,10 +7,16 @@ A simple PHP Router incorporating JWT authenticator.
 
 ## Installation
 
-Install the latest version with
+Install the latest version with:
 
 ```bash
 $ composer require newtovaux/gjrouter
+```
+
+If you only need this library during development, for instance to run your project's test suite, then you should add it as a development-time dependency:
+
+```bash
+composer require --dev newtovaux/gjrouter
 ```
 
 ## Basic Usage
@@ -24,21 +30,39 @@ $ composer require newtovaux/gjrouter
     use Monolog\Handler\StreamHandler;
     use GJRouter\Router;
 
-    // setup logger
+    // Create a logger instance first, for example using monolog (https://github.com/Seldaek/monolog)
 
     $log = new Logger('router');
     $log->pushHandler(new StreamHandler(__DIR__.'/logs/info.log', Logger::INFO));
     $log->pushHandler(new StreamHandler(__DIR__.'/logs/error.log', Logger::ERROR));
 
+    /**
+     * Create the GJRouter object, with the:
+     *    - Name of the function prefix (optional)
+     *    - Name of the default (fallback) route function (optional)
+     *    - Logger instance to use (optional)
+    */
 
     $router = new Router('route_', 'route_default', $log);
+
+    /**
+     * Add some routes, using the:
+     *    - URI
+     *    - HTTP method (GET, POST, PUT or DELETE)
+     *    - Function to call (which is automatically prefixed)
+     *    - Whether you want to authenticate (bool)
+     *    - Whether you want to check this route is only available for admins (bool)
+    */
 
     $router->addRoute('/api/auth', 'GET', 'auth', FALSE, FALSE);
     $router->addRoute('/', 'GET', 'page', FALSE, FALSE);
     $router->addRoute('/api/entity', 'GET', 'page', TRUE, FALSE);
 
+    // Route!
 
     $router->route();
+
+    // Add the functions that the GJRouter will call:
 
     function route_auth(string $method, string $uri, $headers, $jsondata): void 
     {
