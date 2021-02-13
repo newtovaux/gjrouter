@@ -1,5 +1,8 @@
+# Lists files/directories not to be included in prod
+
 /tests export-ignore
 /.* export-ignore
 /build.sh export-ignore
 /psalm.xml export-ignore
 /logs export-ignore
+/examples export-ignore
