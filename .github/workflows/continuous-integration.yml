@@ -69,4 +69,4 @@ jobs:
           composer update ${{ env.COMPOSER_FLAGS }}
 
       - name: "Run tests"
-        run: "composer exec phpunit -- --verbose"
+        run: "composer run-script test"
