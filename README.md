@@ -2,6 +2,7 @@
 
 [![Total Downloads](https://img.shields.io/packagist/dt/newtovaux/gjrouter.svg)](https://packagist.org/packages/newtovaux/gjrouter)
 [![Latest Stable Version](https://img.shields.io/packagist/v/newtovaux/gjrouter.svg)](https://packagist.org/packages/newtovaux/gjrouter)
+![Continuous Integration](https://github.com/newtovaux/gjrouter/workflows/Continuous%20Integration/badge.svg)
 
 A simple PHP Router incorporating JWT authenticator.
 
