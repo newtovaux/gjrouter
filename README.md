@@ -23,7 +23,11 @@ If you only need this library during development, for instance to run your proje
 composer require --dev newtovaux/gjrouter
 ```
 
-## Basic Usage
+## Examples
+
+See [examples/index.php](examples/index.php) file for a full example.
+
+### Basic Usage
 
 ```php
 <?php
@@ -44,10 +48,11 @@ $log->pushHandler(new StreamHandler(__DIR__.'/logs/error.log', Logger::ERROR));
     * Create the GJRouter\Router object, with the:
     *    - Name of the function prefix (optional)
     *    - Name of the default (fallback) route function (optional)
+    *    - Name of the JWT bearer in HTTP Header (defaults to 'Authorization')
     *    - Logger instance to use (optional)
 */
 
-$router = new Router('route_', 'route_default', $log);
+$router = new Router('route_', 'route_default', 'Authorization', $log);
 
 /**
     * Add some routes, using the:
