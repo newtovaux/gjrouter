@@ -9,13 +9,19 @@ use PHPUnit\Framework\TestCase;
 final class ApiTest extends TestCase
 {
 
-    private $log;
+    private Logger $log;
 
     public function setUp(): void
     {
+        // Setup the logger
         $this->log = new Logger('phpunit');
         $this->log->pushHandler(new StreamHandler(__DIR__.'/logs/info.log', Logger::INFO));
         $this->log->pushHandler(new StreamHandler(__DIR__.'/logs/error.log', Logger::ERROR));
+
+        // Setup the environment variables
+        $_ENV['HMAC_KEY'] = 'mBC5v1sOKVvbdEitdSBenu59nfNfhwkedkJVNabosTw';
+        $_ENV['ISSUER'] = 'http://www.example.com';
+        $_ENV['AUDIENCE'] = 'http://www.example.com';
 
     }
 
@@ -32,7 +38,7 @@ final class ApiTest extends TestCase
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
-            new GJRouter\Router('route_', 'route_default', $this->log)
+            new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log)
         );
     }
 
@@ -41,7 +47,7 @@ final class ApiTest extends TestCase
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['REQUEST_URI']);
 
-        $router = new GJRouter\Router('route_', 'route_default', $this->log);
+        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
@@ -58,7 +64,7 @@ final class ApiTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         unset($_SERVER['REQUEST_URI']);
 
-        $router = new GJRouter\Router('route_', 'route_default', $this->log);
+        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
@@ -74,7 +80,7 @@ final class ApiTest extends TestCase
         unset($_SERVER['REQUEST_METHOD']);
         $_SERVER['REQUEST_URI'] = '/';
 
-        $router = new GJRouter\Router('route_', 'route_default', $this->log);
+        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
@@ -91,7 +97,7 @@ final class ApiTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $router = new GJRouter\Router('route_', 'route_default', $this->log);
+        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
