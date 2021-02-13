@@ -1,15 +1,8 @@
 <?php
 namespace GJRouter;
 
-use Lindelius\JWT\Algorithm\HMAC\HS256;
-use Lindelius\JWT\JWT;
 use Psr\Log\LoggerInterface;
-
-class MyJWT extends JWT
-{
-    use HS256;
-    public static $leeway = 10;
-}
+use GJRouter\Auth;
 
 class Router
 {
@@ -19,6 +12,8 @@ class Router
     private object $auth_ref;
     private string $default_route_func;
     private ?LoggerInterface $logger;
+    private ?Auth $auth;
+    private string $header;
 
     /**
      * Constructor
@@ -27,12 +22,13 @@ class Router
      * @param string $default_route_func
      * @param LoggerInterface|null $logger
      */
-    public function __construct(string $function_prefix = '', string $default_route_func = '', ?LoggerInterface $logger = null)
+    public function __construct(string $function_prefix = '', string $default_route_func = '', string $header = 'Authorization', ?LoggerInterface $logger = null)
     {
         $this->function_prefix = $function_prefix;
         $this->routes = [];
         $this->auth_ref = new \stdClass();
-        $this->default_route_func = $default_route_func;
+        $this->default_route_func = $function_prefix . $default_route_func;
+        $this->header = $header;
         $this->logger = $logger;
 
         if (!is_null($this->logger))
@@ -40,6 +36,19 @@ class Router
             $this->logger->info('Started');
         }
 
+        try {
+            $this->auth = new Auth($logger);
+        }
+        catch (\Exception $e)
+        {
+            $this->auth = null;
+            if (!is_null($this->logger))
+            {
+                $this->logger->error('Unable to initialise JWT', [$e->getMessage()]);
+            }
+            throw new \Exception('Unable to initialise');
+        }
+        
     }
 
     /**
@@ -117,7 +126,7 @@ class Router
     /**
      * Main routing method
      *
-     * @return boolean
+     * @return bool
      */
     public function route(): bool
     {
@@ -187,29 +196,48 @@ class Router
 
             // is auth required?
 
-            if ($route->auth == true) {
+            if ($route->auth == true)
+            {
 
-                if (array_key_exists('Authorization', $allheaders) && !empty($allheaders['Authorization'])) {
-                    try {
-                        $decodedJwt = MyJWT::decode((string) $allheaders['Authorization']);
-                        
-                        // decoded sucesfully
-                        header('GJ-Reason: Verified successfully');
+                // Does the appropriate header exist?
 
-                        // run the function
-                        call_user_func((string) $route->function);
-                        
-                    } catch (\Exception $e) {
-                        header('GJ-Reason: Failed JWT verification');
-                        if (!is_null($this->logger))
+                if (array_key_exists($this->header, $allheaders) && !empty($allheaders[$this->header]))
+                {
+
+                    // Is the Auth object present?
+
+                    if (!is_null($this->auth))
                         {
-                            $this->logger->warning('Failed JWT verification', [$request_method, $request_uri, $route, $allheaders['Authorization']]);
+                            if ($this->auth->authenticate((string) $allheaders[$this->header], (bool) $route->admin))
+                            {
+                                // decoded & verified sucesfully
+                                header('GJRouterReason: Verified successfully');
+
+                                // run the function
+                                call_user_func((string) $route->function, $request_method, $request_uri, $allheaders, $json_response);
+                            }
+                            else
+                            {
+                                header('GJRouterReason: Failed JWT verification');
+                                if (!is_null($this->logger))
+                                {
+                                    $this->logger->warning('Failed JWT verification', [$request_method, $request_uri, $route, $allheaders[$this->header]]);
+                                }
+                            }
                         }
-                    }
+                        else
+                        {
+                            if (!is_null($this->logger))
+                            {
+                                $this->logger->error('Auth requested, but no auth object present');
+                            }
+                            return false;
+                        }                        
+                        
                 }
                 else
                 {
-                    header('GJ-Reason: Token not present');
+                    header('GJRouterReason: Token not present');
                     if (!is_null($this->logger))
                     {
                         $this->logger->warning('Failed JWT verification', [$request_method, $request_uri, $route]);
