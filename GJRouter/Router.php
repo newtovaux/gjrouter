@@ -278,6 +278,11 @@ class Router
 
     }
 
+    public function createToken(?array $claims): ?string
+    {
+        return (! is_null($this->auth))? $this->auth->createToken($claims) : null;
+    }    
+
     public function getMethod(): string
     {
         return $this->request_method;

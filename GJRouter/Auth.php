@@ -10,8 +10,6 @@ class Auth extends JWT
     use HS256;
     public static $leeway = 10;
     private string $hmac;
-    private string $issuer;
-    private string $audience;
     private ?LoggerInterface $logger;
 
     /**
@@ -27,8 +25,8 @@ class Auth extends JWT
 
         if (array_key_exists('HMAC_KEY', $_ENV) && array_key_exists('ISSUER', $_ENV) && array_key_exists('AUDIENCE', $_ENV)) {
             $this->hmac = (string) $_ENV['HMAC_KEY'];
-            $this->issuer = (string) $_ENV['ISSUER'];
-            $this->audience = (string) $_ENV['AUDIENCE'];
+            $this->iss = (string) $_ENV['ISSUER'];
+            $this->aud = (string) $_ENV['AUDIENCE'];
         } else {
             throw new \Exception('Environment variables missing');
         }
@@ -49,7 +47,7 @@ class Auth extends JWT
             /** @var object $jwt */
             if ($jwt = $this->decode($jwttoken))
             {
-                if ($jwt->verify($this->hmac, ['aud' => $this->audience, 'iss' => [$this->issuer]]))
+                if ($jwt->verify($this->hmac, ['aud' => $this->aud, 'iss' => [$this->iss]]))
                 {
                     /** @var object $jwt->user */
                     if ($needsadmin)
@@ -111,6 +109,20 @@ class Auth extends JWT
 
         return false;
 
+    }
+
+    public function createToken(?array $claims): ?string
+    {        
+        if (! is_null($claims)){
+            /** @var mixed $claim */
+            foreach ($claims as $key => $claim)
+            {
+                $this->__set((string)$key, $claim);
+            }
+        }
+        $this->exp = time() + (60 * 60);
+        $this->setHeaderField('alg', 'HS256');
+        return $this->encode($this->hmac);
     }
 
 }
