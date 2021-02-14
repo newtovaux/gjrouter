@@ -65,19 +65,19 @@ catch (\Exception $e)
 
 // Add the functions that the GJRouter\Router will call:
 
-function route_auth(string $method, string $uri, array $headers, $jsondata): void 
+function route_auth(Router $route): void 
 {
     error_log('hello');
     echo json_encode(['hello']);
 }
 
-function route_page(string $method, string $uri, array $headers, $jsondata): void 
+function route_page(Router $route): void 
 {
     error_log('page');
     echo '<html><body><h1>Page</h1></body></html>'; // Output some HTML
 }
 
-function route_api(string $method, string $uri, array $headers, $jsondata): void 
+function route_api(Router $route): void 
 {
     error_log('api');
     echo json_encode(['somedata']); // Output some JSON

@@ -14,6 +14,10 @@ class Router
     private ?LoggerInterface $logger;
     private ?Auth $auth;
     private string $header;
+    private string $request_method;
+    private string $request_uri;
+    private array $request_headers;
+    private ?object $request_json;
 
     /**
      * Constructor
@@ -30,6 +34,11 @@ class Router
         $this->default_route_func = $function_prefix . $default_route_func;
         $this->header = $header;
         $this->logger = $logger;
+
+        $this->request_method = '';
+        $this->request_uri = '';
+        $this->request_headers = [];
+        $this->request_json = null;
 
         if (!is_null($this->logger))
         {
@@ -141,8 +150,8 @@ class Router
 
         }
 
-        /** @var string $request_method */
-        $request_method = $_SERVER['REQUEST_METHOD'];
+        /** @var string $this->request_method */
+        $this->request_method = $_SERVER['REQUEST_METHOD'];
 
         // get the request URI
 
@@ -154,16 +163,16 @@ class Router
             return false;
         }
 
-        /** @var string $request_uri */
-        $request_uri = $_SERVER['REQUEST_URI'];
+        /** @var string $this->request_uri */
+        $this->request_uri = $_SERVER['REQUEST_URI'];
 
         if (!is_null($this->logger))
         {
-            $this->logger->info('Request', [$request_method, $request_uri]);
+            $this->logger->info('Request', [$this->request_method, $this->request_uri]);
         }
 
         // get all the HTTP headers
-        $allheaders = [];
+        $this->request_headers = [];
         if(!function_exists('getallheaders'))
         {
             if (!is_null($this->logger))
@@ -173,19 +182,19 @@ class Router
         }
         else
         {
-            $allheaders = getallheaders();
-            if ($allheaders == FALSE)
+            $this->request_headers = getallheaders();
+            if ($this->request_headers == FALSE)
             {
-                $allheaders = [];
+                $this->request_headers = [];
             }
         }
 
         // request data
-        /** @var object|false $json_response */
-        $json_response = json_decode(file_get_contents('php://input'));
+        /** @var object|null $this->request_json */
+        $this->request_json = json_decode(file_get_contents('php://input'));
 
         // simple hash
-        $hash = $request_method . $request_uri;
+        $hash = $this->request_method . $this->request_uri;
 
         // get match
 
@@ -201,27 +210,27 @@ class Router
 
                 // Does the appropriate header exist?
 
-                if (array_key_exists($this->header, $allheaders) && !empty($allheaders[$this->header]))
+                if (array_key_exists($this->header, $this->request_headers) && !empty($this->request_headers[$this->header]))
                 {
 
                     // Is the Auth object present?
 
                     if (!is_null($this->auth))
                         {
-                            if ($this->auth->authenticate((string) $allheaders[$this->header], (bool) $route->admin))
+                            if ($this->auth->authenticate((string) $this->request_headers[$this->header], (bool) $route->admin))
                             {
                                 // decoded & verified sucesfully
                                 header('GJRouterReason: Verified successfully');
 
                                 // run the function
-                                call_user_func((string) $route->function, $request_method, $request_uri, $allheaders, $json_response);
+                                call_user_func((string) $route->function, $this);
                             }
                             else
                             {
                                 header('GJRouterReason: Failed JWT verification');
                                 if (!is_null($this->logger))
                                 {
-                                    $this->logger->warning('Failed JWT verification', [$request_method, $request_uri, $route, $allheaders[$this->header]]);
+                                    $this->logger->warning('Failed JWT verification', [$this->request_method, $this]);
                                 }
                             }
                         }
@@ -240,7 +249,7 @@ class Router
                     header('GJRouterReason: Token not present');
                     if (!is_null($this->logger))
                     {
-                        $this->logger->warning('Failed JWT verification', [$request_method, $request_uri, $route]);
+                        $this->logger->warning('Failed JWT verification', [$this->request_method, $this->request_uri, $route]);
                     }
                 }
 
@@ -252,7 +261,7 @@ class Router
             }
             else
             {
-                call_user_func((string) $route->function, $request_method, $request_uri, $allheaders, $json_response);
+                call_user_func((string) $route->function, $this);
             }
 
         }
@@ -260,13 +269,33 @@ class Router
         {
 
             if ($this->default_route_func !== '' && function_exists($this->default_route_func)) {
-                call_user_func($this->default_route_func, $request_method, $request_uri, $allheaders, $json_response);
+                call_user_func($this->default_route_func, $this);
             }
 
         }
 
         return true;
 
+    }
+
+    public function getMethod(): string
+    {
+        return $this->request_method;
+    }
+
+    public function getUri(): string
+    {
+        return $this->request_uri;
+    }
+
+    public function getJson(): ?object
+    {
+        return $this->request_json;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->request_headers;
     }
 
 }
