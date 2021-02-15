@@ -134,18 +134,47 @@ final class ApiTest extends TestCase
     public function testCreateToken(): void
     {
 
-        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
 
         $token = $router->createToken(['user' => []]);
 
         $this->assertIsString($token);
 
-        echo $token;
+        $this->log->info($token);
 
+    }
+
+    public function testRoute(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/api/test';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
+
+        $router->addRoute('/api/test', 'GET', 'test', FALSE, FALSE);
+
+        $routes = $router->getRoutes();
+
+        $this->assertIsArray($routes);
+
+        $this->assertInstanceOf(
+            GJRouter\Router::class,
+            $router
+        );
+
+        $this->log->info(print_r($routes, TRUE));
+
+        $router->route();
     }
 
 }
 
+function route_test(GJRouter\Router $route): void
+{
+    
+}
 
-
-
+function route_default(GJRouter\Router $route): void
+{
+    
+}
