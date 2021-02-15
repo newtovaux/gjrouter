@@ -40,6 +40,7 @@ try {
     $router->addRoute('/', 'GET', 'page', FALSE, FALSE);
     $router->addRoute('/api/entity', 'POST', 'api', TRUE, FALSE);
     $router->addRoute('/api/admin', 'POST', 'api', TRUE, TRUE);
+    $router->addRoute('/phpinfo', 'GET', 'info', FALSE, FALSE);
 
 
     error_log(php_sapi_name());
@@ -83,8 +84,13 @@ function route_api(Router $route): void
     echo json_encode(['somedata']); // Output some JSON
 }
 
-function route_default(string $method, string $uri, array $headers, $jsondata): void 
+function route_default(Router $route): void 
 {
     echo '<html><body><h1>Error</h1><p>The page you requested does not exist.</p></body></html>'; // Output some HTML
     error_log('default');
+}
+
+function route_info(Router $route): void 
+{
+    echo phpinfo();
 }
