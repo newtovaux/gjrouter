@@ -18,15 +18,18 @@ class Router
     private string $request_uri;
     private array $request_headers;
     private ?object $request_json;
+    private string $baseUri;
 
     /**
      * Constructor
      *
      * @param string $function_prefix
      * @param string $default_route_func
+     * @param string $header
      * @param LoggerInterface|null $logger
+     * @param string $baseUri
      */
-    public function __construct(string $function_prefix = '', string $default_route_func = '', string $header = 'Authorization', ?LoggerInterface $logger = null)
+    public function __construct(string $function_prefix = '', string $default_route_func = '', string $header = 'Authorization', ?LoggerInterface $logger = null, string $baseUri = '')
     {
         $this->function_prefix = $function_prefix;
         $this->routes = [];
@@ -34,6 +37,7 @@ class Router
         $this->default_route_func = $function_prefix . $default_route_func;
         $this->header = $header;
         $this->logger = $logger;
+        $this->baseUri = $baseUri;
 
         $this->request_method = '';
         $this->request_uri = '';
@@ -268,6 +272,11 @@ class Router
         else
         {
 
+            if (!is_null($this->logger))
+            {
+                $this->logger->warning('No route found, trying default', [$hash]);
+            }
+
             if ($this->default_route_func !== '' && function_exists($this->default_route_func)) {
                 call_user_func($this->default_route_func, $this);
             }
@@ -276,6 +285,11 @@ class Router
 
         return true;
 
+    }
+
+    public function getRoutes(): array
+    {
+        return $this->routes;
     }
 
     public function createToken(?array $claims): ?string
