@@ -24,7 +24,8 @@
     "require": {
         "php": ">=7.4",
         "lindelius/php-jwt": "^0.9.0",
-        "psr/log": "^1.1"
+        "psr/log": "^1.1",
+        "ext-json": "*"
     },
     "scripts": {
         "test": "vendor/bin/phpunit tests"

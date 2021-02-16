@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 class Auth extends JWT
 {
     use HS256;
+    /** @var int $leeway */
     public static $leeway = 10;
     private string $hmac;
     private ?LoggerInterface $logger;
@@ -16,6 +17,7 @@ class Auth extends JWT
      * Constructor
      *
      * @param LoggerInterface|null $logger
+     * @throws \Exception
      */
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -122,7 +124,13 @@ class Auth extends JWT
         }
         $this->exp = time() + (60 * 60);
         $this->setHeaderField('alg', 'HS256');
-        return $this->encode($this->hmac);
+
+        try {
+            $enc = $this->encode($this->hmac);
+        } catch (\Exception $e) {
+            $enc = null;
+        }
+        return $enc;
     }
 
 }

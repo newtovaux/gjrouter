@@ -2,7 +2,6 @@
 namespace GJRouter;
 
 use Psr\Log\LoggerInterface;
-use GJRouter\Auth;
 
 class Router
 {
@@ -28,6 +27,7 @@ class Router
      * @param string $header
      * @param LoggerInterface|null $logger
      * @param string $baseUri
+     * @throws \Exception
      */
     public function __construct(string $function_prefix = '', string $default_route_func = '', string $header = 'Authorization', ?LoggerInterface $logger = null, string $baseUri = '')
     {
@@ -82,7 +82,7 @@ class Router
         if ($endpoint === '') {
             if (!is_null($this->logger))
             {
-                $this->logger->error('Enpoint was empty, route not added');
+                $this->logger->error('Endpoint was empty, route not added');
             }
 
             return false;
@@ -105,7 +105,7 @@ class Router
         if (!function_exists($full_func_name)) {
             if (!is_null($this->logger))
             {
-                $this->logger->error('Function doesn\'t exist, route not added');
+                $this->logger->error('Function does not exist, route not added');
             }
             return false;
         }
@@ -223,7 +223,7 @@ class Router
                         {
                             if ($this->auth->authenticate((string) $this->request_headers[$this->header], (bool) $route->admin))
                             {
-                                // decoded & verified sucesfully
+                                // decoded & verified successfully
                                 header('GJRouterReason: Verified successfully');
 
                                 // run the function
