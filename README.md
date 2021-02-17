@@ -69,7 +69,7 @@ $router->addRoute('/api/entity', 'GET', 'page', TRUE, FALSE);
 
 // Route!
 
-$router->route();
+$router->route(getallheaders());
 
 // Add the functions that the GJRouter\Router will call:
 

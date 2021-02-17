@@ -141,7 +141,7 @@ class Router
      *
      * @return bool
      */
-    public function route(): bool
+    public function route(?array $headers = []): bool
     {
         // get the request method
 
@@ -176,22 +176,7 @@ class Router
         }
 
         // get all the HTTP headers
-        $this->request_headers = [];
-        if(!function_exists('getallheaders'))
-        {
-            if (!is_null($this->logger))
-            {
-                $this->logger->warning('Headers not available');
-            }
-        }
-        else
-        {
-            $this->request_headers = getallheaders();
-            if ($this->request_headers == FALSE)
-            {
-                $this->request_headers = [];
-            }
-        }
+        $this->request_headers = $headers ?? [];
 
         // request data
         /** @var object|null $this->request_json */
@@ -209,7 +194,7 @@ class Router
 
             // is auth required?
 
-            if ($route->auth == true)
+            if ($route->auth === true)
             {
 
                 // Does the appropriate header exist?
@@ -287,31 +272,62 @@ class Router
 
     }
 
+    /**
+     * Get the routes
+     *
+     * @return array
+     */
     public function getRoutes(): array
     {
         return $this->routes;
     }
 
+    /**
+     * Create a token
+     *
+     * @param array|null $claims
+     * @return string|null
+     */
     public function createToken(?array $claims): ?string
     {
         return (! is_null($this->auth))? $this->auth->createToken($claims) : null;
     }    
 
+    /**
+     *  Getter: method
+     *
+     * @return string
+     */
     public function getMethod(): string
     {
         return $this->request_method;
     }
 
+    /**
+     * Getter: URI
+     *
+     * @return string
+     */
     public function getUri(): string
     {
         return $this->request_uri;
     }
 
+    /**
+     * Getter: JSON
+     *
+     * @return object|null
+     */
     public function getJson(): ?object
     {
         return $this->request_json;
     }
 
+    /**
+     * Getter: headers array
+     *
+     * @return array
+     */
     public function getHeaders(): array
     {
         return $this->request_headers;

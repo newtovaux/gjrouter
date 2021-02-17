@@ -42,7 +42,7 @@ try {
     $router->addRoute('/api/admin', 'POST', 'api', TRUE, TRUE);
     $router->addRoute('/phpinfo', 'GET', 'info', FALSE, FALSE);
 
-    if (php_sapi_name() == 'cli')
+    if (php_sapi_name() === 'cli')
     {
 
         // Added for testing, in reality this would be provided by your webserver
@@ -54,7 +54,7 @@ try {
 
     // Route!
 
-    $router->route();
+    $router->route(getallheaders());
 }
 catch (Exception $e)
 {
