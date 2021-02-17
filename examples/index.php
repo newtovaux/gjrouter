@@ -56,7 +56,7 @@ try {
 
     $router->route();
 }
-catch (\Exception $e)
+catch (Exception $e)
 {
     error_log('Exception thrown: '. $e->getMessage());
 }
