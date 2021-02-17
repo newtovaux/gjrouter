@@ -42,9 +42,6 @@ try {
     $router->addRoute('/api/admin', 'POST', 'api', TRUE, TRUE);
     $router->addRoute('/phpinfo', 'GET', 'info', FALSE, FALSE);
 
-
-    error_log(php_sapi_name());
-
     if (php_sapi_name() == 'cli')
     {
 
@@ -75,7 +72,7 @@ function route_auth(Router $route): void
 function route_page(Router $route): void 
 {
     error_log('page');
-    echo '<html><body><h1>Page</h1></body></html>'; // Output some HTML
+    echo '<html lang="en"><body><h1>Page</h1></body></html>'; // Output some HTML
 }
 
 function route_api(Router $route): void 
@@ -86,11 +83,12 @@ function route_api(Router $route): void
 
 function route_default(Router $route): void 
 {
-    echo '<html><body><h1>Error</h1><p>The page you requested does not exist.</p></body></html>'; // Output some HTML
+    echo '<html lang="en"><body><h1>Error</h1><p>The page you requested does not exist.</p></body></html>'; // Output some HTML
     error_log('default');
 }
 
 function route_info(Router $route): void 
 {
     echo phpinfo();
+    print_r($route);
 }
