@@ -5,3 +5,6 @@ vendor/
 
 # Logs directory, wherever it may exist
 logs/
+
+# PHPStorm
+.idea/
