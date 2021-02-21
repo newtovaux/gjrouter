@@ -144,21 +144,6 @@ final class ApiTest extends TestCase
 
     }
 
-    public function testCreateVerifiableToken(): void
-    {
-
-        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
-
-        $router->addRoute('/api/test', 'GET', 'test', TRUE, FALSE);
-
-        $token = $router->createToken(['user' => ['email' => 'test@example.com']]);
-
-        $this->expectException(Exception::class);
-        $router->route(['Authorization' => '']);
-
-
-    }
-
     public function testRoute(): void
     {
         $_SERVER['REQUEST_URI'] = '/api/test';
