@@ -31,8 +31,7 @@ jobs:
           # extensions: mongodb, redis, amqp
 
       - name: "Install latest dependencies"
-        run: |
-          composer update
+        run: composer update
 
       - name: "Run psalm"
         run: ./vendor/bin/psalm -c psalm.xml
