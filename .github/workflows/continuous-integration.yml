@@ -55,5 +55,8 @@ jobs:
         run: |
           composer update ${{ env.COMPOSER_FLAGS }}
 
+      - name: "Run psalm"
+        run: ./vendor/bin/psalm -c psalm.xml
+
       - name: "Run tests"
         run: "composer run-script test"

@@ -6,6 +6,7 @@ use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use PHPUnit\Framework\TestCase;
 
+/** @psalm-suppress PropertyNotSetInConstructor */
 final class ApiTest extends TestCase
 {
 
@@ -154,7 +155,8 @@ final class ApiTest extends TestCase
         $router->addRoute('/api/test', 'GET', 'test', FALSE, FALSE);
 
         $routes = $router->getRoutes();
-
+        
+        /** @psalm-suppress RedundantCondition */
         $this->assertIsArray($routes);
 
         $this->assertEquals(1, count($routes));
