@@ -8,6 +8,8 @@
 >
     <projectFiles>
         <directory name="GJRouter" />
+        <directory name="examples" />
+        <directory name="tests" />
         <ignoreFiles>
             <directory name="vendor" />
         </ignoreFiles>
