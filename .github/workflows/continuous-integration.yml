@@ -11,12 +11,13 @@ jobs:
   tests:
     name: "CI"
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
         php-version:
           - "7.4"
+          - "8.0"
         dependencies: [highest]
         include:
           - php-version: "7.4"
