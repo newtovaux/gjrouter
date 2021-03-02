@@ -28,6 +28,8 @@ final class ApiTest extends TestCase
 
     public function testInstantiate(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
+
         $this->assertInstanceOf(
             GJRouter\Router::class,
             new GJRouter\Router()
@@ -36,19 +38,22 @@ final class ApiTest extends TestCase
 
     public function testInstantiateWithParams(): void
     {        
+        $this->log->info('Test: ' . __FUNCTION__);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
-            new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log)
+            new GJRouter\Router('route_', 'default', 'Authorization', $this->log)
         );
     }
 
     public function testRouteNoRequestMethodOrURI(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
+
         unset($_SERVER['REQUEST_METHOD']);
         unset($_SERVER['REQUEST_URI']);
 
-        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
@@ -61,11 +66,12 @@ final class ApiTest extends TestCase
 
     public function testRouteWithRequestMethodNoURI(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
         unset($_SERVER['REQUEST_URI']);
 
-        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
@@ -78,10 +84,12 @@ final class ApiTest extends TestCase
 
     public function testRouteWithRequestURINoMethod(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
+
         unset($_SERVER['REQUEST_METHOD']);
         $_SERVER['REQUEST_URI'] = '/';
 
-        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
@@ -94,16 +102,19 @@ final class ApiTest extends TestCase
 
     public function testRouteWithRequestMethodAndURI(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
 
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
             $router
         );
+
+        $this->expectOutputString('DEFAULT');
 
         $this->assertTrue($router->route());
 
@@ -111,11 +122,12 @@ final class ApiTest extends TestCase
 
     public function testGetters(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
 
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $router = new GJRouter\Router('route_', 'route_default', 'Authorization', $this->log);
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
 
         $this->assertInstanceOf(
             GJRouter\Router::class,
@@ -134,6 +146,7 @@ final class ApiTest extends TestCase
 
     public function testCreateToken(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
 
         $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
 
@@ -145,14 +158,93 @@ final class ApiTest extends TestCase
 
     }
 
-    public function testRoute(): void
+    public function testDefault(): void
     {
+        $this->log->info('Test: ' . __FUNCTION__);
         $_SERVER['REQUEST_URI'] = '/api/test';
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log);
+        // default
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log, 'api');
 
-        $router->addRoute('/api/test', 'GET', 'test', FALSE, FALSE);
+        $routes = $router->getRoutes();
+
+        $this->assertEquals(0, count($routes));
+
+        $this->assertInstanceOf(
+            GJRouter\Router::class,
+            $router
+        );
+
+        $this->expectOutputString('DEFAULT');
+
+        $router->route();
+    }
+
+    public function testNoDefault(): void
+    {
+        $this->log->info('Test: ' . __FUNCTION__);
+
+        $_SERVER['REQUEST_URI'] = '/api/test';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        // no default
+        $router = new GJRouter\Router('route_', '', 'Authorization', $this->log, 'api');
+
+        $routes = $router->getRoutes();
+
+        $this->assertEquals(0, count($routes));
+
+        $this->assertInstanceOf(
+            GJRouter\Router::class,
+            $router
+        );
+
+        $this->expectException(Exception::class);
+
+        $router->route();
+    }
+
+    public function testRoute(): void
+    {
+        $this->log->info('Test: ' . __FUNCTION__);
+
+        $_SERVER['REQUEST_URI'] = '/api/test';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log, 'api');
+
+        $router->addRoute('/test', 'GET', 'test', FALSE, FALSE);
+
+        $routes = $router->getRoutes();
+        
+        /** @psalm-suppress RedundantCondition */
+        $this->assertIsArray($routes);
+
+        $this->assertEquals(1, count($routes));
+
+        $this->assertInstanceOf(
+            GJRouter\Router::class,
+            $router
+        );
+
+        $this->log->info('Routes', [print_r($routes, TRUE)]);
+
+        $this->expectOutputString('TEST');
+
+        $router->route();
+    }
+
+    public function testBaseURI(): void
+    {
+        $this->log->info('Test: ' . __FUNCTION__);
+
+        $_SERVER['REQUEST_URI'] = '/api/test';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $router = new GJRouter\Router('route_', 'default', 'Authorization', $this->log, 'api');
+
+        $router->addRoute('/test', 'GET', 'test', FALSE, FALSE);
 
         $routes = $router->getRoutes();
         
@@ -168,6 +260,38 @@ final class ApiTest extends TestCase
 
         $this->log->info(print_r($routes, TRUE));
 
+        $this->expectOutputString('TEST');
+
+        $router->route();
+    }
+
+    public function testEmptyBaseURI(): void
+    {
+        $this->log->info('Test: ' . __FUNCTION__);
+
+        $_SERVER['REQUEST_URI'] = '/test';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+
+        $router = new GJRouter\Router('route_', '', 'Authorization', $this->log, '');
+
+        $router->addRoute('/test', 'GET', 'test', FALSE, FALSE);
+
+        $routes = $router->getRoutes();
+        
+        /** @psalm-suppress RedundantCondition */
+        $this->assertIsArray($routes);
+
+        $this->assertEquals(1, count($routes));
+
+        $this->assertInstanceOf(
+            GJRouter\Router::class,
+            $router
+        );
+
+        $this->log->info(print_r($routes, TRUE));
+
+        $this->expectOutputString('TEST');
+
         $router->route();
     }
 
@@ -175,10 +299,10 @@ final class ApiTest extends TestCase
 
 function route_test(GJRouter\Router $route): void
 {
-    
+    echo 'TEST';
 }
 
 function route_default(GJRouter\Router $route): void
 {
-    
+    echo 'DEFAULT';
 }

@@ -2,6 +2,7 @@
 namespace GJRouter;
 
 use Psr\Log\LoggerInterface;
+use Exception;
 
 class Router
 {
@@ -17,6 +18,7 @@ class Router
     private string $request_uri;
     private array $request_headers;
     private ?object $request_json;
+    private string $request_params;
     private string $baseUri;
 
     /**
@@ -43,10 +45,11 @@ class Router
         $this->request_uri = '';
         $this->request_headers = [];
         $this->request_json = null;
+        $this->request_params = '';
 
         if (!is_null($this->logger))
         {
-            $this->logger->info('Started');
+            $this->logger->info('GJRouter created');
         }
 
         try {
@@ -167,12 +170,62 @@ class Router
             return false;
         }
 
-        /** @var string $this->request_uri */
-        $this->request_uri = $_SERVER['REQUEST_URI'];
+        if (!is_null($this->logger))
+        {
+            $this->logger->info('BaseURI', [$this->baseUri]);
+        }
 
         if (!is_null($this->logger))
         {
-            $this->logger->info('Request', [$this->request_method, $this->request_uri]);
+            $this->logger->info('Raw request', [$this->request_method, $_SERVER['REQUEST_URI']]);
+        }
+
+        // TODO: fix the 'api' prefix - make it something more generic
+        if ($this->baseUri == '')
+        {
+            $re = '/^(?P<route>\/[-\w]+)(?:\?(?P<params>[^#]*))?#?.*$/m';
+        }
+        else
+        {
+            $re = '/^\/'.$this->baseUri.'(?P<route>\/[-\w]+)(?:\?(?P<params>[^#]*))?#?.*$/m';
+        }
+
+        preg_match_all($re, (string) $_SERVER['REQUEST_URI'], $matches, PREG_SET_ORDER, 0);
+
+        // TODO: This is DEBUG!
+        if (!is_null($this->logger))
+        {
+            $this->logger->info('DEBUG', [(string) $_SERVER['REQUEST_URI'], print_r($matches, TRUE)]);
+        }
+
+        if (count($matches) === 1)
+        {
+            $this->request_uri = $matches[0]['route'];
+
+            if (array_key_exists('params', $matches[0]))
+            {
+                $this->request_params = $matches[0]['params'];
+            }
+
+            if (!is_null($this->logger))
+            {
+                $this->logger->info('Regex matches', [$this->request_uri, $this->request_params]);
+            }
+        }
+        else
+        {
+            // if you can't parse it, just use the value
+            /** @var string $this->request_uri */
+            $this->request_uri = $_SERVER['REQUEST_URI'];
+            if (!is_null($this->logger))
+            {
+                $this->logger->info('No regex matches', [$this->request_uri, $this->request_params, $re]);
+            }
+        }
+
+        if (!is_null($this->logger))
+        {
+            $this->logger->info('Processed URI', [$this->request_uri]);
         }
 
         // get all the HTTP headers
@@ -264,6 +317,10 @@ class Router
 
             if ($this->default_route_func !== '' && function_exists($this->default_route_func)) {
                 call_user_func($this->default_route_func, $this);
+            }
+            else
+            {
+                throw new Exception('Unable to route, no match and no default');
             }
 
         }
