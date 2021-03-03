@@ -180,7 +180,6 @@ class Router
             $this->logger->info('Raw request', [$this->request_method, $_SERVER['REQUEST_URI']]);
         }
 
-        // TODO: fix the 'api' prefix - make it something more generic
         if ($this->baseUri == '')
         {
             $re = '/^(?P<route>\/[-\w]+)(?:\?(?P<params>[^#]*))?#?.*$/m';
@@ -192,12 +191,6 @@ class Router
 
         preg_match_all($re, (string) $_SERVER['REQUEST_URI'], $matches, PREG_SET_ORDER, 0);
 
-        // TODO: This is DEBUG!
-        if (!is_null($this->logger))
-        {
-            $this->logger->info('DEBUG', [(string) $_SERVER['REQUEST_URI'], print_r($matches, TRUE)]);
-        }
-
         if (count($matches) === 1)
         {
             $this->request_uri = $matches[0]['route'];
@@ -207,25 +200,13 @@ class Router
                 $this->request_params = $matches[0]['params'];
             }
 
-            if (!is_null($this->logger))
-            {
-                $this->logger->info('Regex matches', [$this->request_uri, $this->request_params]);
-            }
         }
         else
         {
             // if you can't parse it, just use the value
             /** @var string $this->request_uri */
             $this->request_uri = $_SERVER['REQUEST_URI'];
-            if (!is_null($this->logger))
-            {
-                $this->logger->info('No regex matches', [$this->request_uri, $this->request_params, $re]);
-            }
-        }
 
-        if (!is_null($this->logger))
-        {
-            $this->logger->info('Processed URI', [$this->request_uri]);
         }
 
         // get all the HTTP headers
