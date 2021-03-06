@@ -247,6 +247,8 @@ class Router
 
                                 // run the function
                                 call_user_func((string) $route->function, $this);
+
+                                return true;
                             }
                             else
                             {
