@@ -3,6 +3,7 @@ namespace GJRouter;
 
 use Psr\Log\LoggerInterface;
 use Exception;
+use stdClass;
 
 class Router
 {
@@ -29,13 +30,13 @@ class Router
      * @param string $header
      * @param LoggerInterface|null $logger
      * @param string $baseUri
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(string $function_prefix = '', string $default_route_func = '', string $header = 'Authorization', ?LoggerInterface $logger = null, string $baseUri = '')
     {
         $this->function_prefix = $function_prefix;
         $this->routes = [];
-        $this->auth_ref = new \stdClass();
+        $this->auth_ref = new stdClass();
         $this->default_route_func = $function_prefix . $default_route_func;
         $this->header = $header;
         $this->logger = $logger;
@@ -55,14 +56,14 @@ class Router
         try {
             $this->auth = new Auth($logger);
         }
-        catch (\Exception $e)
+        catch (Exception $e)
         {
             $this->auth = null;
             if (!is_null($this->logger))
             {
                 $this->logger->error('Unable to initialise JWT', [$e->getMessage()]);
             }
-            throw new \Exception('Unable to initialise');
+            throw new Exception('Unable to initialise');
         }
         
     }
@@ -113,7 +114,7 @@ class Router
             return false;
         }
 
-        $r = new \stdClass();
+        $r = new stdClass();
         $r->endpoint = $endpoint;
         $r->method = $method;
         $r->function = $full_func_name;
