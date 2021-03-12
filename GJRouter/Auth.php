@@ -1,6 +1,7 @@
 <?php
 namespace GJRouter;
 
+use Exception;
 use Lindelius\JWT\Algorithm\HMAC\HS256;
 use Lindelius\JWT\JWT;
 use Psr\Log\LoggerInterface;
@@ -17,7 +18,7 @@ class Auth extends JWT
      * Constructor
      *
      * @param LoggerInterface|null $logger
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -30,7 +31,7 @@ class Auth extends JWT
             $this->iss = (string) $_ENV['ISSUER'];
             $this->aud = (string) $_ENV['AUDIENCE'];
         } else {
-            throw new \Exception('Environment variables missing');
+            throw new Exception('Environment variables missing');
         }
     }
 
@@ -104,7 +105,7 @@ class Auth extends JWT
                 header('GJRouterAuthReason: Unable to decode JWT');
             }
 
-        } catch (\Exception $e)
+        } catch (Exception $e)
         {
             header('GJRouterAuthReason: JWT Exception - ' . $e->getMessage());
         }
@@ -127,7 +128,7 @@ class Auth extends JWT
 
         try {
             $enc = $this->encode($this->hmac);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $enc = null;
         }
         return $enc;
